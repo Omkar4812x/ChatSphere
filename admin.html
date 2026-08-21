@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cyan">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChatSphere // ADMIN PANEL</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>" />
+  <style>
+    body { padding: 2rem; overflow-y: auto; background: #010408; }
+    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { border: 1px solid var(--primary); background: rgba(0,212,255,0.05); padding: 1.5rem; text-align: center; border-radius: 4px; box-shadow: 0 0 10px rgba(0,212,255,0.1); }
+    .stat-val { font-family: 'Orbitron', monospace; font-size: 2.5rem; color: var(--primary); text-shadow: 0 0 8px var(--primary); margin-top: 0.5rem; }
+    .log-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+    .log-table th, .log-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(0,212,255,0.2); }
+    .log-table th { color: var(--primary); font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+    .log-table tr:hover { background: rgba(0,212,255,0.05); }
+    .btn-back { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.5rem 1rem; text-decoration: none; font-family: 'Orbitron', monospace; cursor: pointer; margin-bottom: 2rem; transition: background 0.2s; }
+    .btn-back:hover { background: var(--primary); color: #000; }
+  </style>
+</head>
+<body>
+  <div id="auth-guard" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;">
+    <div style="font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--primary);letter-spacing:4px;animation: pulse 1s infinite alternate;">VERIFYING CREDENTIALS...</div>
+  </div>
+
+  <div id="admin-app" style="display:none; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10;">
+    <a href="index.html" class="btn-back">« RETURN TO COMM HUB</a>
+    
+    <h1 class="glitch-text" data-text="SYSTEM OVERSIGHT">SYSTEM OVERSIGHT</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <p style="color:var(--text-sec); margin:0;">RESTRICTED ACCESS LEVEL: ADMIN (JARVIS)</p>
+      <div class="header-metrics" style="display:flex; gap:1.5rem;">
+        <div class="metric"><span class="metric-label">CHRONO</span><span class="metric-value" id="chrono-val" style="font-size:0.7rem;">00:00:00</span></div>
+        <div class="metric"><span class="metric-label">CALENDAR</span><span class="metric-value" id="date-val" style="font-size:0.7rem;">--/--/--</span></div>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="stat-card">
+        <div style="color:var(--text-sec)">TOTAL TRANSMISSIONS</div>
+        <div class="stat-val" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div style="color:var(--text-sec)">TRANSMISSIONS TODAY</div>
+        <div class="stat-val" id="stat-today">0</div>
+      </div>
+      <div class="stat-card">
+        <div style="color:var(--text-sec)">FROM JARVIS</div>
+        <div class="stat-val" id="stat-jarvis">0</div>
+      </div>
+      <div class="stat-card">
+        <div style="color:var(--text-sec)">FROM FRIDAY</div>
+        <div class="stat-val" id="stat-friday">0</div>
+      </div>
+    </div>
+
+    <h2 style="font-family:'Orbitron',monospace; color:var(--orange); border-bottom:1px solid var(--orange); padding-bottom:1rem; margin-top:3rem;">METADATA LOG</h2>
+    
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>DATE</th>
+          <th>TIME</th>
+          <th>SENDER</th>
+          <th>TYPE</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody id="log-body">
+        <!-- Logs populated by admin.js -->
+      </tbody>
+    </table>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script><script src="admin.js"></script>
+</body>
+</html>

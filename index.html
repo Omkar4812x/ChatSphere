@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en" data-theme="cyan">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>ChatSphere // COMM HUB</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>"
+    />
+  </head>
+  <body>
+    <!-- Auth guard -->
+    <div
+      id="auth-guard"
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #020810;
+        flex-direction: column;
+        gap: 1rem;
+      "
+    >
+      <div
+        style="
+          width: 48px;
+          height: 48px;
+          border: 2px solid #00d4ff;
+          border-top-color: transparent;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        "
+      ></div>
+      <div
+        style="
+          font-family: &quot;Orbitron&quot;, monospace;
+          font-size: 0.6rem;
+          color: #00d4ff;
+          letter-spacing: 4px;
+        "
+      >
+        AUTHENTICATING...
+      </div>
+    </div>
+    <style>
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
+    <!-- CHAT SHELL -->
+    <div class="chat-app-shell hud-box" id="chat-app" style="display: none">
+      <!-- ══ SIDEBAR: Online Users ════════════════════════ -->
+      <aside class="users-sidebar" id="users-sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title">ACTIVE AGENTS</span>
+          <span class="online-badge" id="online-count">0</span>
+        </div>
+        <div class="users-list" id="users-list">
+          <div class="no-agents">No agents online</div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 0.5rem;
+            "
+          >
+            <div class="sf-label">ENCRYPTION</div>
+            <button
+              class="btn-icon small"
+              id="security-toggle"
+              title="Security Settings"
+              aria-label="Security Settings"
+            >
+              <svg viewBox="0 0 24 24" style="width: 14px; height: 14px">
+                <path
+                  d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="sf-val">AES-256 · TLS 1.3</div>
+        </div>
+      </aside>
+
+      <!-- ══ MAIN CHAT ══════════════════════════════════════ -->
+      <div class="chat-main">
+        <!-- Header -->
+        <header class="chat-header" aria-label="ChatSphere control panel">
+          <div class="header-left">
+            <button
+              class="btn-icon"
+              id="sidebar-toggle"
+              title="Toggle agents panel"
+              aria-label="Toggle sidebar"
+            >
+              <svg viewBox="0 0 24 24">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+              </svg>
+            </button>
+            <div
+              class="header-avatar arc-reactor"
+              aria-hidden="true"
+              title="Stark Network Core"
+            >
+              <svg viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  opacity="0.2"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="35"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="5"
+                  stroke-dasharray="10 5"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="20"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M50 20 L50 35 M80 50 L65 50 M50 80 L50 65 M20 50 L35 50"
+                  stroke="currentColor"
+                  stroke-width="3"
+                />
+                <circle cx="50" cy="50" r="8" fill="currentColor">
+                  <animate
+                    attributeName="opacity"
+                    values="0.5;1;0.5"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </svg>
+            </div>
+            <div class="header-info mobile-hide">
+              <h2 class="glitch-text" data-text="CHATSPHERE">CHATSPHERE</h2>
+              <div class="status">
+                <span class="status-dot"></span><span>GLOBAL COMM · LIVE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="header-metrics" aria-hidden="true">
+            <div class="metric">
+              <span class="metric-label">CHRONO</span
+              ><span class="metric-value" id="chrono-val">00:00:00</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">MSGS</span
+              ><span class="metric-value" id="msg-count">0</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">STATUS</span
+              ><span class="metric-value green">SECURE</span>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <a
+              href="admin.html"
+              id="admin-link"
+              class="btn-icon hdr-tool"
+              style="display: none; color: var(--orange)"
+              title="System Oversight"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"
+                />
+              </svg>
+            </a>
+            <button
+              class="btn-icon hdr-tool"
+              id="clear-chat"
+              title="Wipe Chat History"
+              aria-label="Wipe Chat"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M15 16h4v2h-4zm0-8h7v2h-7zm0 4h6v2h-6zM3 18c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V8H3v10zM14 5h-3l-1-1H6L5 5H2v2h12z"
+                />
+              </svg>
+            </button>
+            <button
+              class="btn-icon hdr-tool"
+              id="search-toggle"
+              title="Search messages"
+              aria-label="Search"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                />
+              </svg>
+            </button>
+            <button
+              class="btn-icon hdr-tool mobile-hide"
+              id="sound-toggle"
+              title="Toggle sound"
+              aria-label="Toggle sound"
+            >
+              <svg id="sound-icon" viewBox="0 0 24 24">
+                <path
+                  d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.97z"
+                />
+              </svg>
+            </button>
+            <button
+              class="btn-icon hdr-tool mobile-hide"
+              id="theme-cycle"
+              title="Cycle theme"
+              aria-label="Change theme"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+                />
+              </svg>
+            </button>
+            <span class="user-tag" id="user-email"></span>
+            <button
+              class="btn-icon logout-btn"
+              id="logout-btn"
+              title="Terminate session"
+              aria-label="Sign out"
+            >
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"
+                />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-bar" id="search-bar" style="display: none">
+          <span class="search-prefix">QUERY &gt;</span>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search transmissions..."
+            autocomplete="off"
+          />
+          <span class="search-results" id="search-results"></span>
+          <button class="btn-icon" id="close-search" aria-label="Close search">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Audio Context Enabler -->
+        <div class="chat-messages-wrapper">
+          <canvas id="particles-canvas"></canvas>
+          <div
+            id="chat-messages"
+            role="log"
+            aria-label="Messages"
+            aria-live="polite"
+          >
+            <div class="empty-state" id="empty-state">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"
+                />
+              </svg>
+              <div class="empty-title">CHANNEL CLEAR</div>
+              <div class="empty-sub">// initiate transmission</div>
+            </div>
+          </div>
+          <!-- Typing indicator -->
+          <div class="typing-bar" id="typing-bar" style="display: none">
+            <div class="typing-avatar" id="typing-avatar">?</div>
+            <div class="typing-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="typing-label" id="typing-text">agent is typing</span>
+          </div>
+        </div>
+
+        <!-- Reply Preview Bar -->
+        <div class="reply-bar" id="reply-bar" style="display: none">
+          <div class="reply-accent"></div>
+          <div class="reply-content">
+            <span class="reply-sender-name" id="reply-sender"></span>
+            <span class="reply-text-preview" id="reply-text"></span>
+          </div>
+          <button
+            class="btn-icon cancel-reply"
+            id="cancel-reply"
+            aria-label="Cancel reply"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Input Terminal -->
+        <div class="chat-input-bar" id="chat-dropzone">
+          <span class="input-prefix">$&gt;</span>
+
+          <!-- Hidden file input for file uploading -->
+          <input
+            type="file"
+            id="file-input"
+            style="display: none"
+            accept="image/*,.pdf,.doc,.txt"
+          />
+          <button
+            class="btn-icon"
+            id="attach-btn"
+            title="Attach file"
+            aria-label="Attach file"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"
+              />
+            </svg>
+          </button>
+
+          <button
+            class="btn-icon"
+            id="burn-toggle"
+            title="Burn After Reading (Self-Destruct)"
+            style="color: var(--text-sec)"
+          >
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.53-11.43c.13.1.16.28.06.41l-4 5a.298.298 0 0 1-.47 0l-2-2.5a.3.3 0 0 1 .47-.38l1.77 2.21 3.77-4.7c.1-.14.28-.17.4-.04z"
+              />
+            </svg>
+          </button>
+
+          <textarea
+            id="message-input"
+            placeholder="Transmit message / upload..."
+            rows="1"
+            maxlength="2000"
+            aria-label="Message input"
+            autocomplete="off"
+          ></textarea>
+
+          <button id="send-btn" aria-label="Send" title="Transmit">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- end .chat-main -->
+    </div>
+    <!-- end .chat-app-shell -->
+
+    <!-- Emoji Reaction Picker (floating, positioned by JS) -->
+    <div
+      class="emoji-picker"
+      id="emoji-picker"
+      style="display: none"
+      role="dialog"
+      aria-label="Reaction picker"
+    >
+      <button class="ep-btn" data-emoji="👍">👍</button>
+      <button class="ep-btn" data-emoji="❤️">❤️</button>
+      <button class="ep-btn" data-emoji="😂">😂</button>
+      <button class="ep-btn" data-emoji="😮">😮</button>
+      <button class="ep-btn" data-emoji="🔥">🔥</button>
+      <button class="ep-btn" data-emoji="⚡">⚡</button>
+    </div>
+
+    <!-- ══ SECURITY MODAL ════════════════════════════════ -->
+    <div class="modal-overlay" id="security-modal" style="display: none">
+      <div class="modal hud-box" style="max-width: 380px">
+        <div class="modal-header">
+          <h3 class="glitch-text" data-text="SECURITY PROTOCOL">
+            SECURITY PROTOCOL
+          </h3>
+          <button class="btn-icon" id="close-security">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p
+            style="
+              font-family: var(--font-mono);
+              font-size: 0.7rem;
+              color: var(--text-sec);
+              margin-bottom: 1.5rem;
+            "
+          >
+            // RECONFIGURE ACCESS PASSCODE
+          </p>
+
+          <div class="input-group">
+            <label style="font-size: 0.6rem; letter-spacing: 1px"
+              >CURRENT 4-DIGIT PIN</label
+            >
+            <input
+              type="password"
+              id="current-pin"
+              maxlength="4"
+              placeholder="••••"
+              style="text-align: center; letter-spacing: 8px; font-size: 1.2rem"
+            />
+          </div>
+
+          <div class="input-group" style="margin-top: 1rem">
+            <label style="font-size: 0.6rem; letter-spacing: 1px"
+              >NEW 4-DIGIT PIN</label
+            >
+            <input
+              type="password"
+              id="new-pin"
+              maxlength="4"
+              placeholder="••••"
+              style="text-align: center; letter-spacing: 8px; font-size: 1.2rem"
+            />
+          </div>
+
+          <button
+            class="btn-primary"
+            id="update-pin-btn"
+            style="width: 100%; margin-top: 2rem"
+          >
+            UPDATE CREDENTIALS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div
+      class="toast-container"
+      id="toast-container"
+      aria-live="assertive"
+    ></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) => console.log("Mission SW Registered:", reg.scope))
+            .catch((err) => console.log("Mission SW Failed:", err));
+        });
+      }
+    </script>
+  </body>
+</html>

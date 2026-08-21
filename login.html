@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en" data-theme="cyan">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatSphere // AUTHENTICATION</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text> </svg>"
+    />
+  </head>
+
+  <body>
+    <canvas id="auth-particles"></canvas>
+
+    <div class="auth-container">
+      <div class="auth-box">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"
+              />
+            </svg>
+          </div>
+          <h1 class="glitch-text" data-text="SECURE ACCESS">SECURE ACCESS</h1>
+          <div class="auth-subtitle">// Select Agent Profile</div>
+        </div>
+
+        <!-- Agent Selection -->
+        <div
+          id="agent-selection"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+          "
+        >
+          <button class="agent-card" id="card-jarvis" onclick="selectAgent('jarvis')">
+            <div class="ac-avatar">JV</div>
+            <div class="ac-info">
+              <h3>JARVIS</h3>
+              <span>System Admin // ID: 001</span>
+            </div>
+          </button>
+
+          <button class="agent-card" id="card-friday" onclick="selectAgent('friday')">
+            <div class="ac-avatar">FR</div>
+            <div class="ac-info">
+              <h3>FRIDAY</h3>
+              <span>Field Agent // ID: 002</span>
+            </div>
+          </button>
+        </div>
+
+
+        <!-- Passcode Entry -->
+        <div
+          id="passcode-entry"
+          style="
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+          "
+        >
+          <div class="input-group">
+            <label id="passcode-label">ENTER 4-DIGIT PASSCODE</label>
+            <input
+              type="password"
+              id="passcode-input"
+              placeholder="••••"
+              maxlength="4"
+              autocomplete="off"
+              style="text-align: center; letter-spacing: 8px; font-size: 1.5rem"
+            />
+          </div>
+
+          <button class="auth-btn" id="auth-submit">AUTHORIZE</button>
+          <button class="auth-btn ghost" onclick="cancelSelection()">
+            CANCEL
+          </button>
+        </div>
+
+        <!-- Error Toast -->
+        <div class="auth-error" id="auth-error"></div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="auth.js"></script>
+
+    <script>
+      // Personalized Login Logic: Hide profiles via URL param (?agent=friday)
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetAgent = urlParams.get('agent');
+      if (targetAgent === 'friday') {
+        document.getElementById('card-jarvis').style.display = 'none';
+        document.querySelector('.auth-subtitle').textContent = '// Agent Friday: Authentication Required';
+      } else if (targetAgent === 'jarvis') {
+        document.getElementById('card-friday').style.display = 'none';
+        document.querySelector('.auth-subtitle').textContent = '// Admin Jarvis: Identity Verification';
+      }
+
+      // Simple particle background just like the chat page
+      const canvas = document.getElementById("auth-particles");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const particles = Array(30)
+        .fill()
+        .map(() => ({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          s: Math.random() * 2 + 1,
+          v: Math.random() * 0.5 + 0.2,
+        }));
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00d4ff";
+        particles.forEach((p) => {
+          ctx.globalAlpha = Math.random() * 0.5 + 0.1;
+          ctx.fillRect(p.x, p.y, p.s, p.s * 3);
+          p.y -= p.v;
+          if (p.y < -10) {
+            p.y = canvas.height + 10;
+            p.x = Math.random() * canvas.width;
+          }
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    </script>
+  </body>
+</html>
